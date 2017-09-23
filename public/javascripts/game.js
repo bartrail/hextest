@@ -17,14 +17,37 @@ var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS,
 var config = {
   hex  : {
     size   : parseInt(getParameterByName('size', 50)),
-    type   : getParameterByName('type'),    // flat|pointy
-    layout : getParameterByName('layout')   // even|odd
+    type   : getParameterByName('type'),     // flat|pointy
+    layout : getParameterByName('layout'),   // even|odd,
+    delta  : 0,
+    width  : 0,
+    height : 0,
+    distH  : 0,
+    distV  : 0
   },
   grid : {
     rows : parseInt(getParameterByName('rows', 10)),
     cols : parseInt(getParameterByName('cols', 10))
   }
 };
+
+config.hex.delta = config.hex.size - Math.sqrt(Math.pow(config.hex.size, 2) - Math.pow(config.hex.size / 2, 2));
+
+switch (config.hex.type) {
+  case 'flat':
+    config.hex.width  = config.hex.size * 2;
+    config.hex.height = Math.sqrt(3) / 2 * config.hex.width;
+    config.hex.distH  = config.hex.width * 3 / 4;
+    config.hex.distV  = config.hex.height;
+    break;
+  case 'pointy':
+  default:
+    config.hex.height = config.hex.size * 2;
+    config.hex.width  = Math.sqrt(3) / 2 * config.hex.height;
+    config.hex.distV  = config.hex.height * 3 / 4;
+    config.hex.distH  = config.hex.width;
+    break;
+}
 
 var poly;
 var graphics;
@@ -39,7 +62,13 @@ function create() {
   for (var col = 0; col < config.grid.cols; col++) {
     for (var row = 0; row < config.grid.rows; row++) {
 
-      color = row % 2 === 0 ? 0xDDDDDD : 0xEEEEEE;
+      if (row % 2 === 0) {
+        color = 0xCCCCCC;
+        // color = col % 2 === 0 ? 0xAAAAAA : 0xCCCCCC;
+      } else {
+        color = 0xDDDDDD;
+        // color = col % 2 === 0 ? 0xBBBBBB : 0xDDDDDD;
+      }
 
       var hex = new Hexagon({
         row : row,
@@ -57,13 +86,19 @@ function create() {
 
 function render() {
 
-  // game.debug.geom(poly, '#0fffff');
-  game.debug.text(game.input.x + ' x ' + game.input.y, 16, 32);
-
   var hoveredHex = getHoveredHex();
-  if (typeof hoveredHex === 'object') {
-    game.debug.text('hex: ' + hoveredHex.grid.row + ',' + hoveredHex.grid.col, 16, 48);
-  }
+  var debug      = [
+    'size:   ' + config.hex.size,
+    'type:   ' + config.hex.type,
+    'layout: ' + config.hex.layout,
+    'mouse:  ' + game.input.x + ' x ' + game.input.y
+  ];
+
+  debug.forEach(function(text, i) {
+    game.debug.text(text, 5, 16 * (i + 1));
+  });
+
+  game.debug.text(hoveredHex.grid.row + ',' + hoveredHex.grid.col, hoveredHex.center.x, hoveredHex.center.y)
 
 }
 
@@ -92,6 +127,16 @@ function getHoveredHex() {
   for (var i = 0, ii = hexList.length; i < ii; i++) {
     if (hexList[i].isHovered) {
       return hexList[i];
+    }
+  }
+  return {
+    grid   : {
+      row : '',
+      col : ''
+    },
+    center : {
+      x : 0,
+      y : 0
     }
   }
 }

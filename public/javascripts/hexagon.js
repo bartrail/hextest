@@ -32,61 +32,38 @@ function Hexagon(grid, color) {
 
 Hexagon.prototype.calculatePosition = function() {
 
-  var size = config.hex.size,
-      height,
-      width,
-      distVertical,
-      distHorizontal,
-      gridOffset;
+  var size   = config.hex.size,
+      delta  = config.hex.delta,
+      distV  = config.hex.distV,
+      distH  = config.hex.distH,
+      offset = -delta;
+
+  this.center.x = size + this.grid.col * distH;
+  this.center.y = size + this.grid.row * distV + offset;
+
+  if (this.type === 'flat') {
+
+    if (
+      this.layout === 'even' && this.grid.col % 2 !== 0 ||
+      this.layout === 'odd' && this.grid.col % 2 === 0
+    ) {
+      offset = size - 2 * delta;
+    }
+
+    this.center.y += offset;
+
+  }
 
   if (this.type === 'pointy') {
 
-    height         = size * 2;
-    width          = Math.sqrt(3) / 2 * height;
-    distVertical   = height * 3 / 4;
-    distHorizontal = width;
-
-    gridOffset = 0;
-    switch (this.layout) {
-      case 'even':
-        if (this.grid.row % 2 !== 0) {
-          gridOffset = size - 6;
-        }
-        break;
-      case 'odd':
-        if (this.grid.row % 2 === 0) {
-          gridOffset = size - 6;
-        }
-        break;
+    if (
+      this.layout === 'even' && this.grid.row % 2 !== 0 ||
+      this.layout === 'odd' && this.grid.row % 2 === 0
+    ) {
+      offset = size - 2 * delta;
     }
 
-    this.center.x = size + this.grid.col * distHorizontal + gridOffset;
-    this.center.y = size + this.grid.row * distVertical;
-
-  } else {
-
-    width          = size * 2;
-    height         = Math.sqrt(3) / 2 * width;
-    distHorizontal = width * 3 / 4;
-    distVertical   = height;
-
-    gridOffset = 0;
-    switch (this.layout) {
-      case 'even':
-        if (this.grid.col % 2 !== 0) {
-          gridOffset = size - 7;
-        }
-        break;
-      case 'odd':
-        if (this.grid.col % 2 === 0) {
-          gridOffset = size - 7;
-        }
-        break;
-    }
-
-    this.center.x = size + this.grid.col * distHorizontal;
-    this.center.y = size + this.grid.row * distVertical + gridOffset;
-
+    this.center.x += offset;
   }
 
 };
@@ -111,10 +88,11 @@ Hexagon.prototype.hexCorner = function(i) {
   }
   var angleRad = Math.PI / 180 * angleDeg;
 
-  return new Phaser.Point(
-    this.center.x + config.hex.size * Math.cos(angleRad),
-    this.center.y + config.hex.size * Math.sin(angleRad)
-  );
+  return {
+    x     : this.center.x + config.hex.size * Math.cos(angleRad),
+    y     : this.center.y + config.hex.size * Math.sin(angleRad),
+    angle : angleDeg
+  };
 
 };
 

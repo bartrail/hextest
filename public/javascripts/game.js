@@ -51,12 +51,14 @@ switch (config.hex.type) {
 
 var poly;
 var graphics;
-var map;
+var cursors;
 var hexList = [];
 
 function create() {
 
+  game.world.setBounds(0, 0, config.grid.cols * config.hex.width, config.grid.rows * config.hex.width);
   graphics = game.add.graphics(0, 0);
+  cursors  = game.input.keyboard.createCursorKeys();
 
   var color;
   for (var col = 0; col < config.grid.cols; col++) {
@@ -98,7 +100,12 @@ function render() {
     game.debug.text(text, 5, 16 * (i + 1));
   });
 
-  game.debug.text(hoveredHex.grid.row + ',' + hoveredHex.grid.col, hoveredHex.center.x, hoveredHex.center.y)
+  // game.debug.cameraInfo(game.camera, 16, 150);
+  game.debug.text(
+    hoveredHex.grid.row + ',' + hoveredHex.grid.col,
+    hoveredHex.center.x - game.camera.x,
+    hoveredHex.center.y - game.camera.y
+  )
 
 }
 
@@ -107,7 +114,9 @@ function update() {
   graphics.clear();
 
   hexList.forEach(function(hex) {
-    if (hex.polygon.contains(game.input.x, game.input.y)) {
+    var inputX = game.input.x + game.camera.x;
+    var inputY = game.input.y + game.camera.y;
+    if (hex.polygon.contains(inputX, inputY)) {
 
       hex.isHovered = true;
       if (game.input.activePointer.isDown) {
@@ -120,6 +129,20 @@ function update() {
       hex.draw();
     }
   });
+
+  if (cursors.up.isDown) {
+    game.camera.y -= 100;
+  }
+  else if (cursors.down.isDown) {
+    game.camera.y += 100;
+  }
+
+  if (cursors.left.isDown) {
+    game.camera.x -= 100;
+  }
+  else if (cursors.right.isDown) {
+    game.camera.x += 100;
+  }
 
 }
 

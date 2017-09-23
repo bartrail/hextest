@@ -26,11 +26,11 @@ function Hexagon(grid, color) {
   this.layout    = config.hex.layout; // odd|even
   this.isHovered = false;
 
-  this.calculatePosition();
+  this.calculateCenter();
   this.createPolygon();
 }
 
-Hexagon.prototype.calculatePosition = function() {
+Hexagon.prototype.calculateCenter = function() {
 
   var size   = config.hex.size,
       delta  = config.hex.delta,
@@ -102,9 +102,6 @@ Hexagon.prototype.draw = function(color) {
   graphics.beginFill(color);
   graphics.drawPolygon(this.polygon.points);
   graphics.endFill();
-
-  // var style = {font : "20px Arial", fill : "#000000", align : "center"};
-  // var text  = game.add.text(this.center.x - this.size / 3, this.center.y - this.size / 3, this.grid.x + "," + this.grid.y, style);
 
 };
 

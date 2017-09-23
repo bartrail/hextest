@@ -39,7 +39,7 @@ Hexagon.prototype.calculatePosition = function() {
       offset = -delta;
 
   this.center.x = size + this.grid.col * distH;
-  this.center.y = size + this.grid.row * distV + offset;
+  this.center.y = size + this.grid.row * distV;
 
   if (this.type === 'flat') {
 

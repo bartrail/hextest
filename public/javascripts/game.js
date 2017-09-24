@@ -15,7 +15,7 @@ var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS,
 });
 
 var config = {
-  hex  : {
+  hex    : {
     size   : parseInt(getParameterByName('size', 50)),
     type   : getParameterByName('type'),     // flat|pointy
     layout : getParameterByName('layout'),   // even|odd,
@@ -25,9 +25,12 @@ var config = {
     distH  : 0,
     distV  : 0
   },
-  grid : {
+  grid   : {
     rows : parseInt(getParameterByName('rows', 10)),
     cols : parseInt(getParameterByName('cols', 10))
+  },
+  camera : {
+    speed : 25
   }
 };
 
@@ -131,17 +134,17 @@ function update() {
   });
 
   if (cursors.up.isDown) {
-    game.camera.y -= 100;
+    game.camera.y -= config.camera.speed;
   }
   else if (cursors.down.isDown) {
-    game.camera.y += 100;
+    game.camera.y += config.camera.speed;
   }
 
   if (cursors.left.isDown) {
-    game.camera.x -= 100;
+    game.camera.x -= config.camera.speed;
   }
   else if (cursors.right.isDown) {
-    game.camera.x += 100;
+    game.camera.x += config.camera.speed;
   }
 
 }

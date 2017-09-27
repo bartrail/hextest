@@ -8,17 +8,16 @@
  */
 
 
-var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS, 'example', {
+var game   = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS, 'example', {
   create : create,
   update : update,
   render : render
 });
-
 var config = {
   hex    : {
     size   : parseInt(getParameterByName('size', 50)),
-    type   : getParameterByName('type'),     // flat|pointy
-    layout : getParameterByName('layout'),   // even|odd,
+    type   : getParameterByName('type', 'pointy'),     // flat|pointy
+    layout : getParameterByName('layout', 'even'),   // even|odd,
     delta  : 0,
     width  : 0,
     height : 0,
@@ -60,6 +59,8 @@ var hexList = [];
 function create() {
 
   game.world.setBounds(0, 0, config.grid.cols * config.hex.width, config.grid.rows * config.hex.width);
+  game.time.advancedTiming = true;
+
   graphics = game.add.graphics(0, 0);
   cursors  = game.input.keyboard.createCursorKeys();
 
@@ -75,17 +76,14 @@ function create() {
         // color = col % 2 === 0 ? 0xBBBBBB : 0xDDDDDD;
       }
 
-      var hex = new Hexagon({
-        row : row,
-        col : col
-      }, color);
+      var hex = new Hexagon(game, {row : row, col : col}, color);
       hexList.push(hex);
     }
   }
 
-  hexList.forEach(function(hex) {
-    hex.draw();
-  });
+  // hexList.forEach(function(hex) {
+  //   hex.draw();
+  // });
 
 }
 
@@ -93,6 +91,7 @@ function render() {
 
   var hoveredHex = getHoveredHex();
   var debug      = [
+    'fps:    ' + game.time.fps,
     'size:   ' + config.hex.size,
     'type:   ' + config.hex.type,
     'layout: ' + config.hex.layout,

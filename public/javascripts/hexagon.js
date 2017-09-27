@@ -8,15 +8,38 @@
  */
 
 
-function Hexagon(grid, color) {
+function Hexagon(game, grid, color) {
 
-  this.center = {
+  this.game    = game;
+  this.polygon = null;
+  this.center  = {
     x : 0,
     y : 0
   };
-  this.grid   = {
+  this.grid    = {
     row : 0,
     col : 0
+  };
+  this.bounds  = {
+    polygon     : null,
+    width       : null,
+    height      : null,
+    topLeft     : {
+      x : 0,
+      y : 0
+    },
+    topRight    : {
+      x : 0,
+      y : 0
+    },
+    bottomLeft  : {
+      x : 0,
+      y : 0
+    },
+    bottomRight : {
+      x : 0,
+      y : 0
+    }
   };
 
   this.grid.row  = grid.row;
@@ -26,11 +49,13 @@ function Hexagon(grid, color) {
   this.layout    = config.hex.layout; // odd|even
   this.isHovered = false;
 
-  this.calculateCenter();
+  this.cameraIntersectionCache = {};
+
+  this.calculatePosition();
   this.createPolygon();
 }
 
-Hexagon.prototype.calculateCenter = function() {
+Hexagon.prototype.calculatePosition = function() {
 
   var size   = config.hex.size,
       delta  = config.hex.delta,
@@ -52,6 +77,10 @@ Hexagon.prototype.calculateCenter = function() {
 
     this.center.y += offset;
 
+    this.bounds.topLeft.x    = this.center.x - size;
+    this.bounds.topLeft.y    = this.center.y - size + delta;
+    this.bounds.topRight.x   = this.center.x + size;
+    this.bounds.bottomLeft.y = this.center.y + size - delta;
   }
 
   if (this.type === 'pointy') {
@@ -64,7 +93,19 @@ Hexagon.prototype.calculateCenter = function() {
     }
 
     this.center.x += offset;
+
+    this.bounds.topLeft.x    = this.center.x - size + delta;
+    this.bounds.topLeft.y    = this.center.y - size;
+    this.bounds.topRight.x   = this.center.x + size - delta;
+    this.bounds.bottomLeft.y = this.center.y + size;
   }
+
+  this.bounds.bottomLeft.x  = this.bounds.topLeft.x;
+  this.bounds.bottomRight.x = this.bounds.topRight.x;
+  this.bounds.topRight.y    = this.bounds.topLeft.y;
+  this.bounds.bottomRight.y = this.bounds.bottomLeft.y;
+  this.bounds.width         = this.bounds.topRight.x - this.bounds.topLeft.x;
+  this.bounds.height        = this.bounds.bottomRight.y - this.bounds.topRight.y;
 
 };
 
@@ -75,7 +116,13 @@ Hexagon.prototype.createPolygon = function() {
     points.push(this.hexCorner(i));
   }
 
-  this.polygon = new Phaser.Polygon(points);
+  this.polygon        = new Phaser.Polygon(points);
+  this.bounds.polygon = new Phaser.Rectangle(
+    this.bounds.topLeft.x,
+    this.bounds.topLeft.y,
+    this.bounds.width,
+    this.bounds.height
+  );
 };
 
 Hexagon.prototype.hexCorner = function(i) {
@@ -99,6 +146,12 @@ Hexagon.prototype.hexCorner = function(i) {
 Hexagon.prototype.draw = function(color) {
 
   color = typeof color == 'undefined' ? this.color : color;
+
+  var intersect = Phaser.Rectangle.intersection(this.bounds.polygon, this.game.camera.view);
+  if (intersect.height === 0 && intersect.width === 0) {
+    return;
+  }
+
   graphics.beginFill(color);
   graphics.drawPolygon(this.polygon.points);
   graphics.endFill();

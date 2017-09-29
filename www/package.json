@@ -1,0 +1,19 @@
+{
+  "name"         : "hex",
+  "version"      : "0.0.1",
+  "private"      : true,
+  "scripts"      : {
+    "start" : "nodemon -L app.js > /home/node/docker/data/log/node_access.log 2> /home/node/docker/data/log/node_error.log",
+    "test"  : "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies" : {
+    "body-parser"   : "~1.17.1",
+    "cookie-parser" : "~1.4.3",
+    "debug"         : "~2.6.3",
+    "express"       : "~4.15.2",
+    "morgan"        : "~1.8.1",
+    "phaser"        : "^2.6.2",
+    "serve-favicon" : "~2.4.2",
+    "twig"          : "~0.10.3"
+  }
+}

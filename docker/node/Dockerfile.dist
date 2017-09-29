@@ -1,0 +1,49 @@
+FROM node:6.11.2
+
+ENV DIR /home/node
+ENV USER node
+
+RUN apt-get update
+RUN apt-get install -y -qq \
+        vim \
+        zlib1g-dev \
+        libicu-dev \
+        git \
+        zip \
+        g++ \
+        htop \
+        cron \
+        openssh-client \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libmcrypt-dev \
+        libpng12-dev \
+        make \
+        locate \
+        rsync \
+        imagemagick
+
+RUN npm install nodemon@1.3.7 webpack -g
+
+RUN usermod -u $USER_ID ${USER} -s /bin/bash
+
+RUN mkdir ${DIR}/.ssh
+RUN chown -R ${USER} ${DIR}
+RUN chmod -R 700 ${DIR}/.ssh
+RUN echo "    IdentityFile ~/.ssh/id_rsa" >> /etc/ssh/ssh_config
+
+COPY .bashrc ${DIR}
+
+RUN ln -s ${DIR}/docker/data/.bash_history ${DIR}/.bash_history
+
+RUN updatedb
+
+ENV TZ=/usr/share/zoneinfo/Europe/Berlin
+RUN echo $TZ | tee /etc/timezone
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
+USER $USER_ID
+WORKDIR ${DIR}/www
+
+USER root
+CMD npm start

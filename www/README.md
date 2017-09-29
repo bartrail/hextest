@@ -2,9 +2,12 @@
 
 ## Install & Run
 
-`npm install`
+`cd docker`
 
-`DEBUG=hextest:* npm start`
+run docker
+`sh docker.sh`
+
+install npm `npm install`
 
 open in Browser [http://localhost:8080]()
 
